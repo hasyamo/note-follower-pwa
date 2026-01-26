@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="description" content="noteのフォロワー数推移を記録・表示するPWA">
+  <title>積み上げノート</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <!-- 初期設定画面 -->
+  <div id="setup-screen" class="screen">
+    <div class="container">
+      <h1>積み上げノート</h1>
+      <p class="description">noteのフォロワー数推移を記録・グラフ表示</p>
+
+      <div class="setup-form">
+        <label for="creator-id-input">クリエイターIDを入力</label>
+        <p class="hint">https://note.com/<strong>xxx</strong> の xxx の部分</p>
+        <div class="input-group">
+          <span class="input-prefix">note.com/</span>
+          <input type="text" id="creator-id-input" placeholder="hasyamo" autocomplete="off">
+        </div>
+        <button id="check-profile-btn" class="btn btn-primary">プロフィールを確認</button>
+      </div>
+
+      <div id="profile-preview" class="profile-preview hidden">
+        <img id="preview-avatar" src="" alt="アバター" class="avatar">
+        <div class="profile-info">
+          <h3 id="preview-nickname"></h3>
+          <p id="preview-urlname"></p>
+          <p id="preview-followers"></p>
+        </div>
+        <button id="start-tracking-btn" class="btn btn-success">この人で始める</button>
+      </div>
+
+      <div id="setup-error" class="error-message hidden"></div>
+    </div>
+  </div>
+
+  <!-- ダッシュボード画面 -->
+  <div id="dashboard-screen" class="screen hidden">
+    <header class="header">
+      <h1>積み上げノート</h1>
+      <button id="settings-btn" class="btn-icon" aria-label="設定">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1m17.07-7.07l-4.24 4.24m-4.24 4.24L5.93 17.07m12.14 0l-4.24-4.24m-4.24-4.24L5.93 5.93"></path>
+        </svg>
+      </button>
+    </header>
+
+    <div class="container">
+      <!-- プロフィール -->
+      <div class="profile-card">
+        <img id="dashboard-avatar" src="" alt="アバター" class="avatar">
+        <div class="profile-info">
+          <h2 id="dashboard-nickname"></h2>
+          <a id="dashboard-link" href="" target="_blank" rel="noopener">noteで見る</a>
+        </div>
+      </div>
+
+      <!-- 現在のフォロワー数 -->
+      <div class="stats-main">
+        <div class="current-followers">
+          <span class="label">現在のフォロワー数</span>
+          <span id="current-count" class="count">---</span>
+        </div>
+        <button id="refresh-btn" class="btn btn-primary">今すぐ更新</button>
+      </div>
+
+      <!-- 統計カード -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-label">前日比</span>
+          <span id="stat-daily" class="stat-value">---</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">週間</span>
+          <span id="stat-weekly" class="stat-value">---</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">月間</span>
+          <span id="stat-monthly" class="stat-value">---</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">累計</span>
+          <span id="stat-total" class="stat-value">---</span>
+        </div>
+      </div>
+
+      <!-- フォロワー推移グラフ -->
+      <div class="chart-container">
+        <h3>フォロワー推移</h3>
+        <canvas id="followers-chart"></canvas>
+      </div>
+
+      <!-- 日次増減グラフ -->
+      <div class="chart-container">
+        <h3>日次増減</h3>
+        <canvas id="change-chart"></canvas>
+      </div>
+
+      <!-- 記録テーブル -->
+      <div class="records-section">
+        <h3>直近の記録</h3>
+        <table class="records-table">
+          <thead>
+            <tr>
+              <th>日付</th>
+              <th>フォロワー数</th>
+              <th>前日比</th>
+            </tr>
+          </thead>
+          <tbody id="records-tbody">
+          </tbody>
+        </table>
+      </div>
+
+      <p id="last-updated" class="last-updated"></p>
+    </div>
+  </div>
+
+  <!-- 設定画面 -->
+  <div id="settings-screen" class="screen hidden">
+    <header class="header">
+      <button id="back-btn" class="btn-icon" aria-label="戻る">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 12H5m7-7l-7 7 7 7"></path>
+        </svg>
+      </button>
+      <h1>設定</h1>
+    </header>
+
+    <div class="container">
+      <!-- クリエイターID変更 -->
+      <div class="settings-section">
+        <h3>クリエイターID変更</h3>
+        <p class="hint">新しいクリエイターに変更すると、これまでのデータは削除されます</p>
+        <div class="input-group">
+          <span class="input-prefix">note.com/</span>
+          <input type="text" id="change-creator-id-input" placeholder="新しいID" autocomplete="off">
+        </div>
+        <button id="change-creator-btn" class="btn btn-secondary">変更する</button>
+      </div>
+
+      <!-- データエクスポート -->
+      <div class="settings-section">
+        <h3>データエクスポート</h3>
+        <p class="hint">記録データをJSONファイルとしてダウンロード</p>
+        <button id="export-btn" class="btn btn-secondary">エクスポート</button>
+      </div>
+
+      <!-- データインポート -->
+      <div class="settings-section">
+        <h3>データインポート</h3>
+        <p class="hint">JSONファイルからデータを復元（既存データは上書きされます）</p>
+        <input type="file" id="import-file" accept=".json" class="hidden">
+        <button id="import-btn" class="btn btn-secondary">インポート</button>
+      </div>
+
+      <!-- データリセット -->
+      <div class="settings-section">
+        <h3>データリセット</h3>
+        <p class="hint">すべてのデータを削除して初期状態に戻します</p>
+        <button id="reset-btn" class="btn btn-danger">リセット</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ローディング -->
+  <div id="loading" class="loading hidden">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- 確認ダイアログ -->
+  <div id="confirm-dialog" class="dialog-overlay hidden">
+    <div class="dialog">
+      <p id="confirm-message"></p>
+      <div class="dialog-buttons">
+        <button id="confirm-cancel" class="btn btn-secondary">キャンセル</button>
+        <button id="confirm-ok" class="btn btn-danger">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/storage.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/chart.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
