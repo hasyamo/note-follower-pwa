@@ -241,7 +241,7 @@ const App = {
     // 最終更新日時
     if (data.lastUpdated) {
       const date = new Date(data.lastUpdated);
-      this.elements.lastUpdated.textContent = `最終更新: ${date.toLocaleString('ja-JP')}`;
+      this.elements.lastUpdated.textContent = `最終更新: ${date.toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })}`;
     }
   },
 
