@@ -92,7 +92,7 @@ const App = {
   // Service Workerを登録
   registerServiceWorker() {
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=4')
+      navigator.serviceWorker.register('sw.js?v=5')
         .then(() => console.log('Service Worker registered'))
         .catch(err => console.error('Service Worker registration failed:', err));
     }

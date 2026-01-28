@@ -1,5 +1,5 @@
 // Service Worker for note-follower-pwa
-const CACHE_NAME = 'note-follower-v4';
+const CACHE_NAME = 'note-follower-v5';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
