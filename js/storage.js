@@ -219,7 +219,15 @@ const Storage = {
     const utcOffset = now.getTimezoneOffset();
     const jstTime = new Date(now.getTime() + (jstOffset + utcOffset) * 60 * 1000);
 
-    return jstTime.toISOString().replace('Z', '+09:00');
+    const year = jstTime.getUTCFullYear();
+    const month = String(jstTime.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(jstTime.getUTCDate()).padStart(2, '0');
+    const hours = String(jstTime.getUTCHours()).padStart(2, '0');
+    const minutes = String(jstTime.getUTCMinutes()).padStart(2, '0');
+    const seconds = String(jstTime.getUTCSeconds()).padStart(2, '0');
+    const ms = String(jstTime.getUTCMilliseconds()).padStart(3, '0');
+
+    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${ms}+09:00`;
   },
 
   // 日付をフォーマット
