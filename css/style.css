@@ -526,6 +526,27 @@ label {
   flex: 1;
 }
 
+/* Footer */
+.app-footer {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+}
+
+.app-footer p {
+  margin-bottom: 0.25rem;
+}
+
+.app-footer a {
+  color: var(--text-secondary);
+  text-decoration: underline;
+}
+
+.app-footer a:hover {
+  color: var(--text-primary);
+}
+
 /* Responsive */
 @media (min-width: 640px) {
   .stats-grid {
