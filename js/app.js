@@ -361,13 +361,12 @@ const App = {
           } else {
             alert('インポートに失敗しました。ファイル形式を確認してください。');
           }
+          // inputをリセット
+          event.target.value = '';
         };
         reader.readAsText(file);
       }
     );
-
-    // inputをリセット
-    event.target.value = '';
   },
 
   // データをリセット
